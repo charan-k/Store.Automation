@@ -2,26 +2,10 @@ pipeline {
     agent any
 
     parameters {
-        choice(
-            name: 'BROWSER',
-            choices: ['chrome', 'firefox'],
-            description: 'Browser to use for UI Tests'
-        )
-        booleanParam(
-            name: 'RUN_UI_TESTS',
-            defaultValue: true,
-            description: 'Run UI Tests'
-        )
-        booleanParam(
-            name: 'RUN_API_TESTS',
-            defaultValue: true,
-            description: 'Run API Tests'
-        )
-        booleanParam(
-            name: 'HEADLESS',
-            defaultValue: true,
-            description: 'Run browser in headless mode (UI Tests only)'
-        )
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox'], description: 'Browser to use for UI Tests')
+        booleanParam(name: 'RUN_UI_TESTS', defaultValue: true, description: 'Run UI Tests')
+        booleanParam(name: 'RUN_API_TESTS', defaultValue: true, description: 'Run API Tests')
+        booleanParam(name: 'HEADLESS', defaultValue: true, description: 'Run browser in headless mode (UI Tests only)')
     }
 
     environment {
@@ -49,6 +33,20 @@ pipeline {
             }
         }
 
+        stage('Setup Test Tools (trx2junit)') {
+            steps {
+                echo '🧰 Setting up dotnet local tools...'
+                bat """
+                    if not exist .config mkdir .config
+                    if not exist .config\\dotnet-tools.json (
+                        dotnet new tool-manifest
+                    )
+                    dotnet tool install trx2junit --version 2.0.0 || echo trx2junit already installed
+                    dotnet tool restore
+                """
+            }
+        }
+
         stage('Run API Tests') {
             when { expression { return params.RUN_API_TESTS == true } }
 
@@ -69,20 +67,10 @@ pipeline {
                 always {
                     echo '📊 Converting TRX -> JUnit XML and publishing (API)...'
                     bat """
-                        dotnet tool install --global trx2junit --version 2.0.0 || echo trx2junit already installed
-                        trx2junit %RESULTS_DIR%\\api-test-results.trx
+                        dotnet tool run trx2junit %RESULTS_DIR%\\api-test-results.trx
                     """
-
-                    // trx2junit generates JUnit XML; publish all xml in TestResults
                     junit allowEmptyResults: true, testResults: '**/TestResults/*.xml'
-
                     archiveArtifacts artifacts: '**/TestResults/api-test-results.*', allowEmptyArchive: true
-                }
-                success {
-                    echo '✅ API Tests passed!'
-                }
-                failure {
-                    echo '❌ API Tests failed! Check the test results.'
                 }
             }
         }
@@ -112,20 +100,11 @@ pipeline {
                 always {
                     echo '📊 Converting TRX -> JUnit XML and publishing (UI)...'
                     bat """
-                        dotnet tool install --global trx2junit --version 2.0.0 || echo trx2junit already installed
-                        trx2junit %RESULTS_DIR%\\ui-test-results.trx
+                        dotnet tool run trx2junit %RESULTS_DIR%\\ui-test-results.trx
                     """
-
                     junit allowEmptyResults: true, testResults: '**/TestResults/*.xml'
-
                     archiveArtifacts artifacts: '**/TestResults/ui-test-results.*', allowEmptyArchive: true
                     archiveArtifacts artifacts: '**/Screenshots/**', allowEmptyArchive: true
-                }
-                success {
-                    echo '✅ UI Tests passed!'
-                }
-                failure {
-                    echo '❌ UI Tests failed! Check screenshots and logs.'
                 }
             }
         }
@@ -142,15 +121,6 @@ pipeline {
         always {
             echo '🧹 Cleaning workspace...'
             cleanWs()
-        }
-        success {
-            echo '🎉 Pipeline completed! All selected tests passed.'
-        }
-        failure {
-            echo '🚨 Pipeline failed! Check test results, logs and screenshots.'
-        }
-        unstable {
-            echo '⚠️ Pipeline unstable! Some tests may have failed.'
         }
     }
 }
