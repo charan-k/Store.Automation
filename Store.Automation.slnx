@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Jenkinsfile" />
+  </Folder>
   <Project Path="BookStore.Tests/Store.Tests.csproj" />
   <Project Path="BookStore/Store.csproj" />
 </Solution>
