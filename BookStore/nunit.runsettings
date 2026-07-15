@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<!-- NUnit Test Adapter Configuration -->
+	<NUnit>
+		<!-- 
+      NumberOfTestWorkers: Number of parallel threads
+      -1 = number of processors on the machine (recommended)
+      0 = sequential execution (no parallel)
+      > 0 = specific number of threads (e.g., 4)
+    -->
+		<NumberOfTestWorkers>4</NumberOfTestWorkers>
+
+		<!-- Show detailed console output -->
+		<Verbosity>1</Verbosity>
+
+		<!-- Stop execution after first failure (optional) -->
+		<StopOnError>false</StopOnError>
+
+		<!-- Use shadow copy (optional) -->
+		<ShadowCopy>false</ShadowCopy>
+	</NUnit>
+
+	<!-- Run Configuration -->
+	<RunConfiguration>
+		<!-- Maximum number of CPU cores to use -->
+		<MaxCpuCount>1</MaxCpuCount>
+
+		<!-- Test session timeout in milliseconds (10 minutes) -->
+		<TestSessionTimeout>600000</TestSessionTimeout>
+
+		<!-- Target platform (optional) -->
+		<TargetPlatform>x64</TargetPlatform>
+	</RunConfiguration>
+
+	<!-- Test Output Directory (optional) -->
+	<ResultsDirectory>.\TestResults</ResultsDirectory>
+</RunSettings>
