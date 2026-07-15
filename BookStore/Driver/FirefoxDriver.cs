@@ -25,6 +25,19 @@ namespace AutomationFramework.Driver
             try
             {
                 var options = new FirefoxOptions();
+
+
+                // ✅ ONLY CHANGE - Headless applied here
+                // Locally: Config reads false from appsettings.json
+                // Jenkins: Config reads true from environment variable
+                if (Config.Instance.Headless)
+                {
+                    options.AddArgument("--headless");
+                    options.AddArgument("--width=1920");
+                    options.AddArgument("--height=1080");
+                    Logger.Instance.Info("Firefox running in Headless mode");
+                }
+
                 _driver = new OpenQA.Selenium.Firefox.FirefoxDriver(options);
                 _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implicitWaitSeconds);
                 _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(implicitWaitSeconds));

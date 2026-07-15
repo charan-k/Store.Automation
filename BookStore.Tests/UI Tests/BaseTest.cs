@@ -25,7 +25,7 @@ namespace AutomationFramework.Tests
                 BrowserType browser = (BrowserType)Enum.Parse(typeof(BrowserType),browserConfig);
                 int waitTime = Config.Instance.GetInt("ImplicitWaitSeconds");
 
-                Driver = DriverFactory.CreateDriver(browser, waitTime);
+                Driver = DriverFactory.CreateDriver(browser);
                 ScreenshotHelper =new ScreenshotHelper(Driver);
 
                 Logger.Instance.Info($"✅ UI Setup: {GetType().Name}");

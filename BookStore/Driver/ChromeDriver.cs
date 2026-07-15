@@ -32,6 +32,16 @@ namespace AutomationFramework.Driver
                 options.AddArgument("--no-sandbox");
                 options.AddArgument("--disable-dev-shm-usage");
 
+                // ✅ ONLY CHANGE - Headless applied here
+                // Locally: Config reads false from appsettings.json
+                // Jenkins: Config reads true from environment variable
+                if (Config.Instance.Headless)
+                {
+                    options.AddArgument("--headless");
+                    options.AddArgument("--disable-gpu");
+                    options.AddArgument("--window-size=1920,1080");
+                    Logger.Instance.Info("Chrome running in Headless mode");
+                }
                 _driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
                 _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implicitWaitSeconds);
                 _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(implicitWaitSeconds));
