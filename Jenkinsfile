@@ -1,7 +1,6 @@
 pipeline {
     agent any
 
-    // ✅ Parameters - Configurable from Jenkins UI
     parameters {
         choice(
             name: 'BROWSER',
@@ -25,18 +24,17 @@ pipeline {
         )
     }
 
-    // ✅ Global Environment Variables
     environment {
-        SOLUTION_PATH        = 'YourSolution.sln'
-        TEST_PROJECT_PATH    = 'YourTestProject/YourTestProject.csproj'
-        RESULTS_DIR          = 'TestResults'
-        LOGS_DIR             = 'Logs'
-        SCREENSHOTS_DIR      = 'Screenshots'
+        SOLUTION_PATH     = 'Store.Automation.slnx'
+        TEST_PROJECT_PATH = 'BookStore.Tests/Store.Tests.csproj'
+        RUNSETTINGS_PATH  = 'BookStore/nunit.runsettings'
+        RESULTS_DIR       = 'TestResults'
+        LOGS_DIR          = 'Logs'
+        SCREENSHOTS_DIR   = 'Screenshots'
     }
-
+    ,
     stages {
 
-        // ✅ Stage 1 - Checkout Code
         stage('Checkout Code') {
             steps {
                 echo '📥 Checking out source code...'
@@ -44,7 +42,6 @@ pipeline {
             }
         }
 
-        // ✅ Stage 2 - Restore NuGet Packages
         stage('Restore Packages') {
             steps {
                 echo '📦 Restoring NuGet packages...'
@@ -52,7 +49,6 @@ pipeline {
             }
         }
 
-        // ✅ Stage 3 - Build Solution
         stage('Build Solution') {
             steps {
                 echo '🔨 Building the solution...'
@@ -60,15 +56,10 @@ pipeline {
             }
         }
 
-        // ✅ Stage 4 - Run API Tests
+        // ✅ No Browser or Headless needed for API Tests
         stage('Run API Tests') {
             when {
                 expression { return params.RUN_API_TESTS == true }
-            }
-            environment {
-                // API Tests only need BaseAPIUrl
-                // No browser or headless needed
-                ENVIRONMENT  = "${params.ENVIRONMENT}"
             }
             steps {
                 echo '🔗 Running API Tests...'
@@ -77,6 +68,7 @@ pipeline {
                         --configuration Release \
                         --no-build \
                         --filter "Category=API" \
+                        --settings ${RUNSETTINGS_PATH} \
                         --logger "trx;LogFileName=api-test-results.trx" \
                         --results-directory ${RESULTS_DIR}
                 """
@@ -99,18 +91,16 @@ pipeline {
             }
         }
 
-        // ✅ Stage 5 - Run UI Tests
+        // ✅ BrowserType and Headless passed as env variables
+        // Config.cs reads these automatically
         stage('Run UI Tests') {
             when {
                 expression { return params.RUN_UI_TESTS == true }
             }
             environment {
-                // ✅ UI Tests need Browser, Headless and Environment
-                // Config.cs reads these environment variables
-                BrowserType  = "${params.BROWSER}"
-                Headless     = "${params.HEADLESS}"
-                ENVIRONMENT  = "${params.ENVIRONMENT}"
-                DISPLAY      = ':99' // Required for Linux Jenkins agents (no GUI)
+                BrowserType = "${params.BROWSER}"
+                Headless    = "${params.HEADLESS}"
+                DISPLAY     = ':99'
             }
             steps {
                 echo '🌐 Running UI Tests...'
@@ -119,6 +109,7 @@ pipeline {
                         --configuration Release \
                         --no-build \
                         --filter "Category=UI" \
+                        --settings ${RUNSETTINGS_PATH} \
                         --logger "trx;LogFileName=ui-test-results.trx" \
                         --results-directory ${RESULTS_DIR}
                 """
@@ -131,7 +122,6 @@ pipeline {
                         artifacts: '**/TestResults/ui-test-results.trx',
                         allowEmptyArchive: true
                     )
-                    // ✅ Archive screenshots captured on test failure
                     archiveArtifacts(
                         artifacts: '**/Screenshots/**',
                         allowEmptyArchive: true
@@ -146,7 +136,6 @@ pipeline {
             }
         }
 
-        // ✅ Stage 6 - Publish Logs
         stage('Publish Logs') {
             steps {
                 echo '📋 Publishing logs...'
@@ -157,7 +146,6 @@ pipeline {
             }
         }
 
-        // ✅ Stage 7 - Publish Test Reports
         stage('Publish Test Reports') {
             steps {
                 echo '📈 Publishing test reports...'
@@ -167,13 +155,12 @@ pipeline {
                     keepAll              : true,
                     reportDir            : "${RESULTS_DIR}",
                     reportFiles          : '*.trx',
-                    reportName           : 'Automation Test Results'
+                    reportName           : 'BookStore Automation Test Results'
                 ])
             }
         }
     }
 
-    // ✅ Global Post Actions
     post {
         always {
             echo '🧹 Cleaning workspace...'
