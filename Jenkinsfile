@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'BROWSER', choices: ['chrome', 'firefox'], description: 'Browser to use for UI Tests')
+        choice(name: 'BROWSER', choices: ['Chrome', 'Firefox'], description: 'Browser to use for UI Tests')
         booleanParam(name: 'RUN_UI_TESTS', defaultValue: true, description: 'Run UI Tests')
         booleanParam(name: 'RUN_API_TESTS', defaultValue: true, description: 'Run API Tests')
         booleanParam(name: 'HEADLESS', defaultValue: true, description: 'Run browser in headless mode (UI Tests only)')
