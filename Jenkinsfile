@@ -49,74 +49,93 @@ pipeline {
             }
         }
 
-       stage('Run API Tests') {
-                  when { expression { return params.RUN_API_TESTS == true } }
+        stage('Run API Tests') {
+            when { expression { return params.RUN_API_TESTS == true } }
 
-                  steps {
-                    echo '🔗 Running API Tests...'
-                    bat """
-                      dotnet test %TEST_PROJECT_PATH% ^
+            steps {
+                echo '🔗 Running API Tests...'
+                bat """
+                    dotnet test %TEST_PROJECT_PATH% ^
                         --configuration Release ^
                         --no-build ^
                         --filter "Category=API" ^
                         --settings %RUNSETTINGS_PATH% ^
-                        --logger "trx;LogFileName=api-test-results.trx" ^
-                        --logger "nunit;LogFilePath=%RESULTS_DIR%/api-test-results.xml" ^
-                        --results-directory %RESULTS_DIR%
-                    """
-                  }
+                        --results-directory %RESULTS_DIR% ^
+                        --logger "trx;LogFileName=api-test-results.trx"
+                """
+            }
 
-                  post {
-                    always {
-                      echo '📊 Archiving API test results...'
-                      junit '**/TestResults/api-test-results.xml'
-                      archiveArtifacts artifacts: '**/TestResults/api-test-results.*', allowEmptyArchive: true
-                    }
-                  }
+            post {
+                always {
+                    echo '📊 Converting TRX -> JUnit XML and publishing (API)...'
+                    bat """
+                        dotnet tool install --global trx2junit --version 2.0.0 || echo trx2junit already installed
+                        trx2junit %RESULTS_DIR%\\api-test-results.trx
+                    """
+
+                    // trx2junit generates JUnit XML; publish all xml in TestResults
+                    junit allowEmptyResults: true, testResults: '**/TestResults/*.xml'
+
+                    archiveArtifacts artifacts: '**/TestResults/api-test-results.*', allowEmptyArchive: true
                 }
+                success {
+                    echo '✅ API Tests passed!'
+                }
+                failure {
+                    echo '❌ API Tests failed! Check the test results.'
+                }
+            }
+        }
 
         stage('Run UI Tests') {
-                      when { expression { return params.RUN_UI_TESTS == true } }
+            when { expression { return params.RUN_UI_TESTS == true } }
 
-                      environment {
-                        BrowserType = "${params.BROWSER}"
-                        Headless    = "${params.HEADLESS}"
-                      }
+            environment {
+                BrowserType = "${params.BROWSER}"
+                Headless    = "${params.HEADLESS}"
+            }
 
-                      steps {
-                        echo '🌐 Running UI Tests...'
-                        bat """
-                          dotnet test %TEST_PROJECT_PATH% ^
-                            --configuration Release ^
-                            --no-build ^
-                            --filter "Category=UI" ^
-                            --settings %RUNSETTINGS_PATH% ^
-                            --logger "trx;LogFileName=ui-test-results.trx" ^
-                            --logger "nunit;LogFilePath=%RESULTS_DIR%/ui-test-results.xml" ^
-                            --results-directory %RESULTS_DIR%
-                        """
-                      }
+            steps {
+                echo '🌐 Running UI Tests...'
+                bat """
+                    dotnet test %TEST_PROJECT_PATH% ^
+                        --configuration Release ^
+                        --no-build ^
+                        --filter "Category=UI" ^
+                        --settings %RUNSETTINGS_PATH% ^
+                        --results-directory %RESULTS_DIR% ^
+                        --logger "trx;LogFileName=ui-test-results.trx"
+                """
+            }
 
-                      post {
-                        always {
-                          echo '📊 Archiving UI test results...'
-                          junit '**/TestResults/ui-test-results.xml'
-                          archiveArtifacts artifacts: '**/TestResults/ui-test-results.*', allowEmptyArchive: true
-                          archiveArtifacts artifacts: '**/Screenshots/**', allowEmptyArchive: true
-                        }
-                      }
-                    }
+            post {
+                always {
+                    echo '📊 Converting TRX -> JUnit XML and publishing (UI)...'
+                    bat """
+                        dotnet tool install --global trx2junit --version 2.0.0 || echo trx2junit already installed
+                        trx2junit %RESULTS_DIR%\\ui-test-results.trx
+                    """
+
+                    junit allowEmptyResults: true, testResults: '**/TestResults/*.xml'
+
+                    archiveArtifacts artifacts: '**/TestResults/ui-test-results.*', allowEmptyArchive: true
+                    archiveArtifacts artifacts: '**/Screenshots/**', allowEmptyArchive: true
+                }
+                success {
+                    echo '✅ UI Tests passed!'
+                }
+                failure {
+                    echo '❌ UI Tests failed! Check screenshots and logs.'
+                }
+            }
+        }
 
         stage('Publish Logs') {
             steps {
                 echo '📋 Publishing logs...'
-                archiveArtifacts(
-                    artifacts: '**/Logs/**',
-                    allowEmptyArchive: true
-                )
+                archiveArtifacts artifacts: '**/Logs/**', allowEmptyArchive: true
             }
         }
-
     }
 
     post {
