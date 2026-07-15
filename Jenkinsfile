@@ -32,44 +32,37 @@ pipeline {
         LOGS_DIR          = 'Logs'
         SCREENSHOTS_DIR   = 'Screenshots'
     }
-      stages {
 
-        stage('Checkout Code') {
-            steps {
-                echo '📥 Checking out source code...'
-                checkout scm
-            }
-        }
+    stages {
 
         stage('Restore Packages') {
             steps {
                 echo '📦 Restoring NuGet packages...'
-                sh 'dotnet restore ${SOLUTION_PATH}'
+                bat 'dotnet restore %SOLUTION_PATH%'
             }
         }
 
         stage('Build Solution') {
             steps {
                 echo '🔨 Building the solution...'
-                sh 'dotnet build ${SOLUTION_PATH} --configuration Release --no-restore'
+                bat 'dotnet build %SOLUTION_PATH% --configuration Release --no-restore'
             }
         }
 
-        // ✅ No Browser or Headless needed for API Tests
         stage('Run API Tests') {
             when {
                 expression { return params.RUN_API_TESTS == true }
             }
             steps {
                 echo '🔗 Running API Tests...'
-                sh """
-                    dotnet test ${TEST_PROJECT_PATH} \
-                        --configuration Release \
-                        --no-build \
-                        --filter "Category=API" \
-                        --settings ${RUNSETTINGS_PATH} \
-                        --logger "trx;LogFileName=api-test-results.trx" \
-                        --results-directory ${RESULTS_DIR}
+                bat """
+                    dotnet test %TEST_PROJECT_PATH% ^
+                        --configuration Release ^
+                        --no-build ^
+                        --filter "Category=API" ^
+                        --settings %RUNSETTINGS_PATH% ^
+                        --logger "trx;LogFileName=api-test-results.trx" ^
+                        --results-directory %RESULTS_DIR%
                 """
             }
             post {
@@ -90,8 +83,6 @@ pipeline {
             }
         }
 
-        // ✅ BrowserType and Headless passed as env variables
-        // Config.cs reads these automatically
         stage('Run UI Tests') {
             when {
                 expression { return params.RUN_UI_TESTS == true }
@@ -99,18 +90,17 @@ pipeline {
             environment {
                 BrowserType = "${params.BROWSER}"
                 Headless    = "${params.HEADLESS}"
-                DISPLAY     = ':99'
             }
             steps {
                 echo '🌐 Running UI Tests...'
-                sh """
-                    dotnet test ${TEST_PROJECT_PATH} \
-                        --configuration Release \
-                        --no-build \
-                        --filter "Category=UI" \
-                        --settings ${RUNSETTINGS_PATH} \
-                        --logger "trx;LogFileName=ui-test-results.trx" \
-                        --results-directory ${RESULTS_DIR}
+                bat """
+                    dotnet test %TEST_PROJECT_PATH% ^
+                        --configuration Release ^
+                        --no-build ^
+                        --filter "Category=UI" ^
+                        --settings %RUNSETTINGS_PATH% ^
+                        --logger "trx;LogFileName=ui-test-results.trx" ^
+                        --results-directory %RESULTS_DIR%
                 """
             }
             post {
