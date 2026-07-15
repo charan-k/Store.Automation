@@ -49,81 +49,63 @@ pipeline {
             }
         }
 
-        stage('Run API Tests') {
-            when {
-                expression { return params.RUN_API_TESTS == true }
-            }
-            steps {
-                echo '🔗 Running API Tests...'
-                bat """
-                    dotnet test %TEST_PROJECT_PATH% ^
+       stage('Run API Tests') {
+                  when { expression { return params.RUN_API_TESTS == true } }
+
+                  steps {
+                    echo '🔗 Running API Tests...'
+                    bat """
+                      dotnet test %TEST_PROJECT_PATH% ^
                         --configuration Release ^
                         --no-build ^
                         --filter "Category=API" ^
                         --settings %RUNSETTINGS_PATH% ^
                         --logger "trx;LogFileName=api-test-results.trx" ^
+                        --logger "nunit;LogFilePath=%RESULTS_DIR%/api-test-results.xml" ^
                         --results-directory %RESULTS_DIR%
-                """
-            }
-            post {
-                always {
-                    echo '📊 Archiving API test results...'
-                    junit '**/TestResults/api-test-results.trx'
-                    archiveArtifacts(
-                        artifacts: '**/TestResults/api-test-results.trx',
-                        allowEmptyArchive: true
-                    )
+                    """
+                  }
+
+                  post {
+                    always {
+                      echo '📊 Archiving API test results...'
+                      junit '**/TestResults/api-test-results.xml'
+                      archiveArtifacts artifacts: '**/TestResults/api-test-results.*', allowEmptyArchive: true
+                    }
+                  }
                 }
-                success {
-                    echo '✅ API Tests passed!'
-                }
-                failure {
-                    echo '❌ API Tests failed! Check the test results.'
-                }
-            }
-        }
 
         stage('Run UI Tests') {
-            when {
-                expression { return params.RUN_UI_TESTS == true }
-            }
-            environment {
-                BrowserType = "${params.BROWSER}"
-                Headless    = "${params.HEADLESS}"
-            }
-            steps {
-                echo '🌐 Running UI Tests...'
-                bat """
-                    dotnet test %TEST_PROJECT_PATH% ^
-                        --configuration Release ^
-                        --no-build ^
-                        --filter "Category=UI" ^
-                        --settings %RUNSETTINGS_PATH% ^
-                        --logger "trx;LogFileName=ui-test-results.trx" ^
-                        --results-directory %RESULTS_DIR%
-                """
-            }
-            post {
-                always {
-                    echo '📊 Archiving UI test results...'
-                    junit '**/TestResults/ui-test-results.trx'
-                    archiveArtifacts(
-                        artifacts: '**/TestResults/ui-test-results.trx',
-                        allowEmptyArchive: true
-                    )
-                    archiveArtifacts(
-                        artifacts: '**/Screenshots/**',
-                        allowEmptyArchive: true
-                    )
-                }
-                success {
-                    echo '✅ UI Tests passed!'
-                }
-                failure {
-                    echo '❌ UI Tests failed! Check screenshots and logs.'
-                }
-            }
-        }
+                      when { expression { return params.RUN_UI_TESTS == true } }
+
+                      environment {
+                        BrowserType = "${params.BROWSER}"
+                        Headless    = "${params.HEADLESS}"
+                      }
+
+                      steps {
+                        echo '🌐 Running UI Tests...'
+                        bat """
+                          dotnet test %TEST_PROJECT_PATH% ^
+                            --configuration Release ^
+                            --no-build ^
+                            --filter "Category=UI" ^
+                            --settings %RUNSETTINGS_PATH% ^
+                            --logger "trx;LogFileName=ui-test-results.trx" ^
+                            --logger "nunit;LogFilePath=%RESULTS_DIR%/ui-test-results.xml" ^
+                            --results-directory %RESULTS_DIR%
+                        """
+                      }
+
+                      post {
+                        always {
+                          echo '📊 Archiving UI test results...'
+                          junit '**/TestResults/ui-test-results.xml'
+                          archiveArtifacts artifacts: '**/TestResults/ui-test-results.*', allowEmptyArchive: true
+                          archiveArtifacts artifacts: '**/Screenshots/**', allowEmptyArchive: true
+                        }
+                      }
+                    }
 
         stage('Publish Logs') {
             steps {
@@ -135,19 +117,6 @@ pipeline {
             }
         }
 
-        stage('Publish Test Reports') {
-            steps {
-                echo '📈 Publishing test reports...'
-                publishHTML(target: [
-                    allowMissing         : true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll              : true,
-                    reportDir            : "${RESULTS_DIR}",
-                    reportFiles          : '*.trx',
-                    reportName           : 'BookStore Automation Test Results'
-                ])
-            }
-        }
     }
 
     post {
