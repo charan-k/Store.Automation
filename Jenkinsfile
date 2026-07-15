@@ -32,8 +32,7 @@ pipeline {
         LOGS_DIR          = 'Logs'
         SCREENSHOTS_DIR   = 'Screenshots'
     }
-    ,
-    stages {
+      stages {
 
         stage('Checkout Code') {
             steps {
