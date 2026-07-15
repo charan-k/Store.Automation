@@ -1,4 +1,5 @@
-﻿using AutomationFramework.Models;
+﻿using AutomationFramework.Core;
+using AutomationFramework.Models;
 using AutomationFramework.Tests.Tests;
 using Newtonsoft.Json;
 
@@ -24,7 +25,7 @@ namespace AutomationFramework.Tests
             // Just verify UserId is not null
             Assert.That(UserId, Is.Not.Null);
             Assert.That(UserId, Is.Not.Empty);
-            Console.WriteLine($"✅ UserId Verified: {UserId}");
+            Logger.Instance.Info($"✅ UserId Verified: {UserId}");
         }
 
         // ✅ TC002 - Register User with Existing Username
@@ -36,8 +37,8 @@ namespace AutomationFramework.Tests
                            .RegisterUser(UserName, Password);
 
             Assert.That((int)response.StatusCode, Is.EqualTo(406));
-            Console.WriteLine($"✅ Duplicate User Rejected!");
-            Console.WriteLine($"✅ Response: {response.Content}");
+            Logger.Instance.Info($"✅ Duplicate User Rejected!");
+            Logger.Instance.Info($"✅ Response: {response.Content}");
         }
 
         // ✅ TC003 - Register User with Weak Password
@@ -50,8 +51,8 @@ namespace AutomationFramework.Tests
                             "weakpassword");
 
             Assert.That((int)response.StatusCode, Is.EqualTo(400));
-            Console.WriteLine($"✅ Weak Password Rejected!");
-            Console.WriteLine($"✅ Response: {response.Content}");
+            Logger.Instance.Info($"✅ Weak Password Rejected!");
+            Logger.Instance.Info($"✅ Response: {response.Content}");
         }
 
         // ✅ TC004 - Register User with Empty Username
@@ -95,7 +96,7 @@ namespace AutomationFramework.Tests
             Assert.That((int)response.StatusCode, Is.EqualTo(200));
             Assert.That(userResponse.userID, Is.EqualTo(UserId));
             Assert.That(userResponse.username, Is.EqualTo(UserName));
-            Console.WriteLine($"✅ Got User: {userResponse.username}");
+            Logger.Instance.Info($"✅ Got User: {userResponse.username}");
         }
 
         // ✅ TC007 - Get User with Invalid Token
@@ -106,8 +107,8 @@ namespace AutomationFramework.Tests
                            .GetUser(UserId, "InvalidToken123");
 
             Assert.That((int)response.StatusCode, Is.EqualTo(401));
-            Console.WriteLine($"✅ Unauthorized as Expected!");
-            Console.WriteLine($"✅ Response: {response.Content}");
+            Logger.Instance.Info($"✅ Unauthorized as Expected!");
+            Logger.Instance.Info($"✅ Response: {response.Content}");
         }
 
         // ✅ TC008 - Get User with Invalid UserId

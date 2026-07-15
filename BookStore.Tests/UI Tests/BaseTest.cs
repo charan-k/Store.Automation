@@ -54,6 +54,7 @@ namespace AutomationFramework.Tests
                 else
                 {
                     Logger.Instance.Info($"✅ Test Passed: {testName}");
+                    ScreenshotHelper?.TakeScreenshot($"{testName}_Passed");
                 }
 
                 Driver?.Dispose();

@@ -44,7 +44,7 @@ namespace AutomationFramework.Tests.Tests
 
             UserId = AccountService.UserId;
             Token = AccountService.Token;
-
+           
             Logger.Instance.Info($"✅ BaseApiTests Setup Done!");
             Logger.Instance.Info($"✅ UserName: {UserName}");
             Logger.Instance.Info($"✅ UserID: {UserId}");
