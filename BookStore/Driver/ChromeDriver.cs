@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 using System;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
@@ -84,6 +85,16 @@ namespace AutomationFramework.Driver
             }
         }
 
+        public IWebElement WaitForElement(string xpath, int timeoutSeconds = 30)
+        {
+            var wait = new WebDriverWait(
+                _driver,
+                TimeSpan.FromSeconds(timeoutSeconds)
+            );
+            return wait.Until(ExpectedConditions.ElementIsVisible(
+                By.XPath(xpath)
+            ));
+        }
         public void Click(string xpath)
         {
             try

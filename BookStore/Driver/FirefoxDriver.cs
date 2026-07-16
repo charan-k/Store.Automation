@@ -1,8 +1,9 @@
-﻿using System;
+﻿using AutomationFramework.Core;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
-using AutomationFramework.Core;
+using SeleniumExtras.WaitHelpers;
+using System;
 
 namespace AutomationFramework.Driver
 {
@@ -50,7 +51,16 @@ namespace AutomationFramework.Driver
                 throw;
             }
         }
-
+        public IWebElement WaitForElement(string xpath, int timeoutSeconds = 30)
+        {
+            var wait = new WebDriverWait(
+                _driver,
+                TimeSpan.FromSeconds(timeoutSeconds)
+            );
+            return wait.Until(ExpectedConditions.ElementIsVisible(
+                By.XPath(xpath)
+            ));
+        }
         public void Navigate(string url)
         {
             try

@@ -1,4 +1,6 @@
-﻿using AutomationFramework.Driver;
+﻿using AutomationFramework.Core;
+using AutomationFramework.Driver;
+using OpenQA.Selenium;
 
 namespace AutomationFramework.Pages
 {
@@ -28,7 +30,19 @@ namespace AutomationFramework.Pages
         /// </summary>
         public string GetWelcomeMessage()
         {
-            return Driver.GetText(WelcomeMessageXPath);
+            try
+            {
+                // ✅ Clean - no _wait needed in BasePage
+                var element = Driver.WaitForElement(WelcomeMessageXPath);
+                string message = element.Text.Trim();
+                Logger.Instance.Info($"Welcome message found: '{message}'");
+                return message;
+            }
+            catch (WebDriverTimeoutException)
+            {
+                Logger.Instance.Error("Welcome message not found within timeout");
+                throw;
+            }
         }
 
         /// <summary>

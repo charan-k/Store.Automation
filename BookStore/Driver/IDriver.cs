@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenQA.Selenium;
+using System;
 
 namespace AutomationFramework.Driver
 {
@@ -17,5 +18,7 @@ namespace AutomationFramework.Driver
         void Screenshot(string filename);
         string GetUrl();
         string GetTitle();
+
+        IWebElement WaitForElement(string xpath, int timeoutSeconds = 30);
     }
 }
