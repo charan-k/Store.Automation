@@ -11,8 +11,8 @@ namespace AutomationFramework.Pages
     public class HomePage : BasePage
     {
         // Page Locators - Encapsulation
-        private const string WelcomeMessageXPath = "//div[@class='ms-auto text-end col-md-4 col-sm-12']";
-        private const string UserProfileXPath = "//div[@class='profile-wrapper']";
+        private const string WelcomeMessageXPath = "//div[contains(@class, 'ms-auto') and contains(@class, 'text-end')]";
+        private const string UserProfileXPath = "//div[contains(@class, 'profile-wrapper')]";
         private const string LogoutButtonXPath = "//button[text()='Logout']";
 
         public HomePage(IDriver driver) : base(driver)
@@ -50,7 +50,23 @@ namespace AutomationFramework.Pages
         /// </summary>
         public bool IsUserProfileDisplayed()
         {
-            return Driver.IsDisplayed(UserProfileXPath);
+            try
+            {
+                var element = Driver.WaitForElement(UserProfileXPath);
+                bool isDisplayed = element.Displayed;
+                Logger.Instance.Info($"User profile displayed: {isDisplayed}");
+                return isDisplayed;
+            }
+            catch (WebDriverTimeoutException)
+            {
+                Logger.Instance.Error("User profile not visible within timeout");
+                return false;
+            }
+            catch (NoSuchElementException)
+            {
+                Logger.Instance.Error("User profile element not found in DOM");
+                return false;
+            }
         }
 
         /// <summary>
