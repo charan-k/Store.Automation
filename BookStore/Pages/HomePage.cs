@@ -20,7 +20,7 @@ namespace AutomationFramework.Pages
         public override void WaitForPageLoad()
         {
             base.WaitForPageLoad();
-            Driver.Wait(1);
+            Driver.Wait(3);
         }
 
         /// <summary>

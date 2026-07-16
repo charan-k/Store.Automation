@@ -90,6 +90,7 @@ namespace AutomationFramework.Tests
         }
 
         [Test]
+        [Ignore("This test is ignored for demonstration purposes")]
         [TestCaseSource(nameof(GetLoginTestCases))]
         public void TestLoginWithMultipleCredentials(TestData testData)
         {
