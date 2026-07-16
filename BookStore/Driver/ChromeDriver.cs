@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AutomationFramework.Core;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using AutomationFramework.Core;
+using System;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs.Impl;
+using WebDriverManager.Helpers;
 
 
 namespace AutomationFramework.Driver
@@ -27,12 +28,23 @@ namespace AutomationFramework.Driver
         {
             try
             {
-                new DriverManager().SetUpDriver(new ChromeConfig());
+
+
+                // ✅ FIX - Use MatchingBrowser strategy to auto-match installed Chrome version
+                string driverPath = new DriverManager().SetUpDriver(
+                    new ChromeConfig(),
+                    VersionResolveStrategy.MatchingBrowser
+                );
+                // ✅ FIX - Null-safe directory extraction
+                string driverDirectory = Path.GetDirectoryName(driverPath)
+                    ?? throw new InvalidOperationException("Could not determine ChromeDriver directory.");
+
+                Logger.Instance.Info($"Using ChromeDriver from: {driverPath}");
+
                 var options = new ChromeOptions();
                 options.AddArgument("--no-sandbox");
                 options.AddArgument("--disable-dev-shm-usage");
 
-                // ✅ ONLY CHANGE - Headless applied here
                 // Locally: Config reads false from appsettings.json
                 // Jenkins: Config reads true from environment variable
                 if (Config.Instance.Headless)
@@ -42,11 +54,14 @@ namespace AutomationFramework.Driver
                     options.AddArgument("--window-size=1920,1080");
                     Logger.Instance.Info("Chrome running in Headless mode");
                 }
-                _driver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
+
+                // ✅ FIX - Pass driverDirectory so Selenium uses the correct ChromeDriver
+                _driver = new OpenQA.Selenium.Chrome.ChromeDriver(driverDirectory, options);
                 _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implicitWaitSeconds);
                 _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(implicitWaitSeconds));
 
-                Logger.Instance.Info("Chrome WebDriver initialized");
+                Logger.Instance.Info("Chrome WebDriver initialized successfully");
+
             }
             catch (Exception ex)
             {
