@@ -4,8 +4,7 @@ using System;
 namespace AutomationFramework.Driver
 {
     /// <summary>
-    /// Interface for WebDriver - Abstraction Principle
-    /// OOPS: Abstraction, allowing multiple implementations
+    /// Interface for WebDriver
     /// </summary>
     public interface IDriver : IDisposable
     {

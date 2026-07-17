@@ -6,13 +6,7 @@ using System.Text;
 
 namespace AutomationFramework.Helpers
 {
-    // ✅ S Principle - Only ONE job
-    // which is to build Account requests
-    //
-    // ✅ O Principle - Open for extension
-    // if new account request types needed
-    // just extend this class
-    // Closed for modification
+   
     public class AccountRequestBuilder : IAccountRequestBuilder
     {
         private RestRequest _request;

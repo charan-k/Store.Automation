@@ -12,8 +12,7 @@ using WebDriverManager.Helpers;
 namespace AutomationFramework.Driver
 {
     /// <summary>
-    /// Chrome WebDriver Implementation - Polymorphism
-    /// OOPS: Concrete implementation of IDriver interface
+    /// Chrome WebDriver Implementation
     /// </summary>
     public class ChromeDriver : IDriver
     {

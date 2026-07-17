@@ -5,8 +5,7 @@ using AutomationFramework.Driver;
 namespace AutomationFramework.Factory
 {
     /// <summary>
-    /// Factory Pattern - Creates WebDriver instances
-    /// OOPS: Factory Design Pattern for object creation
+    /// Creates WebDriver instances
     /// </summary>
     public class DriverFactory
     {

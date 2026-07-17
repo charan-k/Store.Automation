@@ -4,8 +4,7 @@ using System.IO;
 namespace AutomationFramework.Core
 {
     /// <summary>
-    /// Singleton Logger - Ensures only one instance throughout the application
-    /// OOPS: Encapsulation, Single Responsibility Principle
+    /// Singleton Logger
     /// </summary>
     public sealed class Logger
     {

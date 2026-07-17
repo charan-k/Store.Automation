@@ -6,7 +6,6 @@ namespace AutomationFramework.Pages
 {
     /// <summary>
     /// Home Page - Concrete Page Object
-    /// OOPS: Inheritance from BasePage
     /// </summary>
     public class HomePage : BasePage
     {

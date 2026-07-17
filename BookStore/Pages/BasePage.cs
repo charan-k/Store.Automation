@@ -5,8 +5,7 @@ using AutomationFramework.Driver;
 namespace AutomationFramework.Pages
 {
     /// <summary>
-    /// Base Page Object - Inheritance & Abstraction
-    /// OOPS: Base class for all page objects
+    /// Base Page Object 
     /// </summary>
     public abstract class BasePage
     {

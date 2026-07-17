@@ -6,13 +6,7 @@ using System.Text;
 
 namespace AutomationFramework.Helpers
 {
-    // ✅ S Principle - Only ONE job
-    // which is to build Book requests
-    //
-    // ✅ O Principle - Open for extension
-    // if new book request types needed
-    // just extend this class
-    // Closed for modification
+    
     public class BookRequestBuilder : IBookRequestBuilder
     {
         private RestRequest _request;
