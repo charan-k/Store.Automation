@@ -49,7 +49,8 @@ namespace AutomationFramework.Tests
                 {
                     ScreenshotHelper?.TakeScreenshot($"{testName}_Failed");
 
-                    Logger.Instance.Warning("❌ Test Failed: {testName}");
+                    Logger.Instance.Warning($"❌ Test Failed: {testName}"); 
+
                 }
                 else
                 {
