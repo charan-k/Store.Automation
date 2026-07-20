@@ -18,6 +18,6 @@ namespace AutomationFramework.Driver
         string GetUrl();
         string GetTitle();
 
-        IWebElement WaitForElement(string xpath, int timeoutSeconds = 30);
+        IWebElement WaitForElement(string xpath, int timeoutSeconds = 60);
     }
 }
