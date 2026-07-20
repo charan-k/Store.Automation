@@ -44,7 +44,7 @@ namespace AutomationFramework.Driver
                 var options = new ChromeOptions();
                 options.AddArgument("--no-sandbox");
                 options.AddArgument("--disable-dev-shm-usage");
-
+                options.AddArgument("--disable-extensions");
                 // Locally: Config reads false from appsettings.json
                 // Jenkins: Config reads true from environment variable
                 if (Config.Instance.Headless)
