@@ -59,7 +59,6 @@ namespace AutomationFramework.Driver
                 _driver = new OpenQA.Selenium.Chrome.ChromeDriver(driverDirectory, options);
                 _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(implicitWaitSeconds);
                 _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(implicitWaitSeconds));
-                _driver.Manage().Window.Maximize();
                 Logger.Instance.Info("Chrome WebDriver initialized successfully");
 
             }
