@@ -44,6 +44,7 @@ namespace AutomationFramework.Tests
         {
             Logger.Instance.Info("TEST: TestWelcomeMessageDisplayed Started");
 
+            _homePage.WaitForPageLoad();
             // Arrange & Act
             string welcomeMessage = _homePage.GetWelcomeMessage();
 
